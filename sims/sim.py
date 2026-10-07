@@ -35,12 +35,12 @@ def step (state:State) -> State:
     new_xpos = state.xpos + state.xvel * time_step
     new_time = state.time + time_step
 
-    newState = State{
+    newState = State(
         xvel = new_vel,
         xpos = new_xpos,
         ypos = 0,
         time = new_time
-    }
+    )
 
     return newState
 
