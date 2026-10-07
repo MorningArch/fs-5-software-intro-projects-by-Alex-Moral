@@ -5,9 +5,11 @@ import numpy as np
 
 #lines above ^ import relevant modules and packages
 
+#must research where to initialize latvel variable
 @dataclass
 class State:
     xvel:float
+    latvel:float
     xpos:float
     ypos:float
     time:float
@@ -18,10 +20,15 @@ time_step = 0.01
 #defines step function to move simulation through time
 def step (state:State) -> State:
     #important physical facts
-    mass = 100
+    mass = 300
     radius = 0.216
     gear_ratio = 3
     max_torque = 180
+
+    #initializing dynamic physical facts
+    steer_angle = 0
+    forward_speed = 15
+    cornering_stiffness = 36000
 
     #driver pressing the pedal from 0 to 1 within 7 seconds
     if state.time <= 7:
@@ -35,7 +42,7 @@ def step (state:State) -> State:
     else:
         driver_input = 0.0
 
-    #important physics equations
+    #part 1 physics equations
     command_torque = max_torque * driver_input
     force_at_wheels = (command_torque * gear_ratio)/radius
     acceleration = force_at_wheels/mass
@@ -44,9 +51,16 @@ def step (state:State) -> State:
     new_xpos = state.xpos + state.xvel * time_step
     new_time = state.time + time_step
 
+    #part 2 physics equations
+    slip_angle = steer_angle - (latvel/forward_speed)
+    lateral_force = cornering_stiffness * slip_angle
+    lateral_acceleration = lateral_force/mass
+    new_latvel = latvel + (lateral_acceleration * time_step)
+
     #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
+        latvel = new_latvel,
         xpos = new_xpos,
         ypos = 0,
         time = new_time
