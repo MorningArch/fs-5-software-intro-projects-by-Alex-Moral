@@ -5,11 +5,9 @@ import numpy as np
 
 #lines above ^ import relevant modules and packages
 
-#must research where to initialize latvel variable
 @dataclass
 class State:
     xvel:float
-    latvel:float
     xpos:float
     ypos:float
     time:float
@@ -29,6 +27,7 @@ def step (state:State) -> State:
     steer_angle = 0
     forward_speed = 15
     cornering_stiffness = 36000
+    latvel = 0
 
     #driver pressing the pedal from 0 to 1 within 7 seconds
     if state.time <= 7:
@@ -57,10 +56,12 @@ def step (state:State) -> State:
     lateral_acceleration = lateral_force/mass
     new_latvel = latvel + (lateral_acceleration * time_step)
 
+    #updates latvel of state.  Will see if it causes problem in the future
+    latvel = new_latvel
+
     #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
-        latvel = new_latvel,
         xpos = new_xpos,
         ypos = 0,
         time = new_time
