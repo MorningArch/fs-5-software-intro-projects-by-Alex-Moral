@@ -44,11 +44,18 @@ def step (state:State) -> State:
 
     return newState
 
+x0 = State(
+    xpos=0,
+    ypos=0,
+    xvel=0,
+    time=0
+)
+
 def animate (i):
     global x0
-    so = step(x0)
+    x0 = step(x0)
     ax.clear()
-    ax.scatter([x0.xpo],[x.ypos], s = 200, c = 'pink', marker = 's')
+    ax.scatter([x0.xpos],[x0.ypos], s = 200, c = 'pink', marker = 's')
     ax.set_xlim(0,300)
     ax.set_ylim(0,10)
     return ax
