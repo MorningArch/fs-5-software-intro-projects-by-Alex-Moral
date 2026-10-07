@@ -29,6 +29,18 @@ def step (state:State) -> State:
     cornering_stiffness = 36000
     latvel = 0
 
+    #turning steering wheel 5 degrees over 3 seconds
+    if state.time <= 3:
+        steer_angle = state.time * 5 / 3
+
+    #holding steering wheel for another 7 seconds
+    elif state.time <= 3 + 7:
+        steer_angle = 5
+
+    #steering wheel is released
+    else:
+        steer_angle = 0
+
     #driver pressing the pedal from 0 to 1 within 7 seconds
     if state.time <= 7:
         driver_input = state.time/7
@@ -41,7 +53,7 @@ def step (state:State) -> State:
     else:
         driver_input = 0.0
 
-    #part 1 physics equations
+    #Throttle physics equations
     command_torque = max_torque * driver_input
     force_at_wheels = (command_torque * gear_ratio)/radius
     acceleration = force_at_wheels/mass
@@ -50,8 +62,8 @@ def step (state:State) -> State:
     new_xpos = state.xpos + state.xvel * time_step
     new_time = state.time + time_step
 
-    #part 2 physics equations
-    slip_angle = steer_angle - (latvel/forward_speed)
+    #Traction physics equations
+    slip_angle = (steer_angle * (3.14/180)) - (latvel/forward_speed)
     lateral_force = cornering_stiffness * slip_angle
     lateral_acceleration = lateral_force/mass
     new_latvel = latvel + (lateral_acceleration * time_step)
