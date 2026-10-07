@@ -3,6 +3,8 @@ import matplotlib.animation as animation
 from dataclasses import dataclass
 import numpy as np
 
+#lines above ^ import relevant modules and packages
+
 @dataclass
 class State:
     xvel:float
@@ -10,23 +12,30 @@ class State:
     ypos:float
     time:float
 
+#resolution of the simulation
 time_step = 0.01
 
+#defines step function to move simulation through time
 def step (state:State) -> State:
+    #important physical facts
     mass = 100
     radius = 0.216
     gear_ratio = 3
     max_torque = 180
 
+    #driver pressing the pedal from 0 to 1 within 7 seconds
     if state.time <= 7:
         driver_input = state.time/7
 
+    #pedal fully pressed until 22 seconds
     elif state.time <= 22:
         driver_input = 1.0
 
+    #driver stops pressing pedal after 22 seconds
     else:
         driver_input = 0.0
 
+    #important physics equations
     command_torque = max_torque * driver_input
     force_at_wheels = (command_torque * gear_ratio)/radius
     acceleration = force_at_wheels/mass
@@ -35,6 +44,7 @@ def step (state:State) -> State:
     new_xpos = state.xpos + state.xvel * time_step
     new_time = state.time + time_step
 
+    #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
         xpos = new_xpos,
@@ -44,6 +54,7 @@ def step (state:State) -> State:
 
     return newState
 
+#initializes car state as x0 at the origin point in space-time
 x0 = State(
     xpos=0,
     ypos=0,
@@ -51,6 +62,7 @@ x0 = State(
     time=0
 )
 
+#defines function which animates the car step by step through the graph
 def animate (i):
     global x0
     x0 = step(x0)
@@ -61,7 +73,7 @@ def animate (i):
     return ax
 
 
-
+#draws the fixed simulation graph
 fig = plt.figure(figsize=(3,3), dpi=150)
 ax = fig.add_subplot(111)
 ax.grid()
