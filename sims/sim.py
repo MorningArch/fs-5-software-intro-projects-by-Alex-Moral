@@ -11,6 +11,7 @@ class State:
     xpos:float
     ypos:float
     time:float
+    latvel:float
 
 #resolution of the simulation
 time_step = 0.01
@@ -27,7 +28,6 @@ def step (state:State) -> State:
     steer_angle = 0
     forward_speed = 15
     cornering_stiffness = 36000
-    latvel = 0
 
     #turning steering wheel 5 degrees over 3 seconds
     if state.time <= 3:
@@ -63,20 +63,18 @@ def step (state:State) -> State:
     new_time = state.time + time_step
 
     #Traction physics equations
-    slip_angle = (steer_angle * (3.14/180)) - (latvel/forward_speed)
+    slip_angle = (steer_angle * (3.14/180)) - (state.latvel/forward_speed)
     lateral_force = cornering_stiffness * slip_angle
     lateral_acceleration = lateral_force/mass
-    new_latvel = latvel + (lateral_acceleration * time_step)
-
-    #updates latvel of state.  Will see if it causes problem in the future
-    latvel = new_latvel
+    new_latvel = state.latvel + (lateral_acceleration * time_step)
 
     #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
         xpos = new_xpos,
         ypos = 0,
-        time = new_time
+        time = new_time,
+        latvel = new_latvel
     )
 
     return newState
@@ -86,7 +84,8 @@ x0 = State(
     xpos=0,
     ypos=0,
     xvel=0,
-    time=0
+    time=0,
+    latvel=0
 )
 
 #defines function which animates the car step by step through the graph
@@ -97,7 +96,14 @@ def animate (i):
     ax.scatter([x0.xpos],[x0.ypos], s = 200, c = 'pink', marker = 's')
     ax.set_xlim(0,300)
     ax.set_ylim(0,10)
-    return ax
+
+    ax1.clear()
+    ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
+    #ax1.plot(x0.time,x0.latvel)
+    ax1.set_xlim(0,20)
+    ax1.set_ylim(0,50)
+
+    return ax, ax1
 
 
 #draws the fixed simulation graph
@@ -106,7 +112,16 @@ ax = fig.add_subplot(111)
 ax.grid()
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
+
+#making traction graph
+fig1 = plt.figure(figsize=(3,3),dpi=150)
+ax1 = fig1.add_subplot(111)
+ax1.grid()
+ax1.set_xlim(-2, 2)
+ax1.set_ylim(-2, 2)
+
 # these lines are so the animation doesnt zoom in or out
 plt.pause(3)
 ani = animation.FuncAnimation(fig, animate, interval=0)
+ani1 = animation.FuncAnimation(fig1, animate, interval=0)
 plt.show()
