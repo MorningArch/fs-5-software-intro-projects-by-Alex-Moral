@@ -13,6 +13,7 @@ class State:
     time:float
     latvel:float
     dragvel:float
+    motvel:float
 
 #resolution of the simulation
 time_step = 0.1
@@ -35,6 +36,22 @@ def step (state:State) -> State:
     cross_sectional_area = 1.2
     drag_coefficient = 1.7
     drag_acceleration = 0
+
+    #motor model physical facts
+    max_propulsion = 2000
+    max_xvel = 27
+    motor_driver_input = 0
+
+    #braking physical facts
+    maximum_braking_capacity = 1850
+
+    #pressing motor acceleration pedal over 3 seconds
+    if state.time <= 3:
+        motor_driver_input = state.time/3
+
+    #holding the pedal for 20 seconds
+    elif state.time <=  3 + 20:
+        motor_driver_input = 1
 
     #accelerating car at 5m/s^2 for 10 seconds
     if state.time <= 10:
@@ -88,6 +105,16 @@ def step (state:State) -> State:
     drag_net_acceleration = drag_acceleration - (drag/mass)
     new_dragvel = state.dragvel + (drag_net_acceleration * time_step)
 
+    #Motor model physics equation
+    propulsion = max_propulsion * motor_driver_input * (1-(state.motvel/max_xvel))
+    motor_acceleration = propulsion / mass
+    new_motvel = state.motvel + (motor_acceleration * time_step)
+
+    #braking physics equations
+    braking_force = braking_input * maximum_braking_capacity
+    braking_acceleration = braking_force/mass
+    new_brakevel = brakevel + (braking_acceleration * time_step)
+
     #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
@@ -95,7 +122,8 @@ def step (state:State) -> State:
         ypos = 0,
         time = new_time,
         latvel = new_latvel,
-        dragvel = new_dragvel
+        dragvel = new_dragvel,
+        motvel = new_motvel
     )
 
     return newState
@@ -107,7 +135,8 @@ x0 = State(
     xvel=0,
     time=0,
     latvel=0,
-    dragvel=0
+    dragvel=0,
+    motvel=0
 )
 
 #defines function which animates the car step by step through the graph
@@ -117,14 +146,15 @@ def animate (i):
     throttle.set_offsets([[x0.xpos, x0.ypos]])
     latforce.set_offsets([x0.time, x0.latvel])
     vel_with_drag.set_offsets([x0.time,x0.dragvel])
+    motor_velocity.set_offsets([x0.time,x0.motvel])
 
 #Not sure what below return still does anymore?  Artifacts from previous versions
-    return ax, ax1, ax2
+    return ax, ax1, ax2, ax3
 
 
 #draws the fixed simulation graph
 fig = plt.figure(figsize=(3,3), dpi=80)
-ax = fig.add_subplot(131)
+ax = fig.add_subplot(141)
 ax.grid()
 ax.set_xlim(0,300)
 ax.set_ylim(0,10)
@@ -132,18 +162,25 @@ throttle = ax.scatter([x0.xpos],[x0.ypos], s = 200, c = 'pink', marker = 's')
 
 
 #making traction graph
-ax1 = fig.add_subplot(132)
+ax1 = fig.add_subplot(142)
 ax1.grid()
 ax1.set_xlim(0,20)
 ax1.set_ylim(0,50)
 latforce = ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
 
 #making drag graph.  Note: still need to end simulation when dragvel = 0.1
-ax2 = fig.add_subplot(133)
+ax2 = fig.add_subplot(143)
 ax2.grid()
 ax2.set_xlim(0,50)
 ax2.set_ylim(0,50)
 vel_with_drag = ax2.scatter([x0.time],[x0.dragvel], s = 200, c = 'blue', marker = 'o')
+
+#making motor velocity graph.
+ax3 = fig.add_subplot(144)
+ax3.grid()
+ax3.set_xlim(0,50)
+ax3.set_ylim(0,50)
+motor_velocity = ax3.scatter([x0.time],[x0.motvel], s = 200, c = 'green', marker = 'o')
 
 # these lines are so the animation doesnt zoom in or out
 plt.pause(3)
