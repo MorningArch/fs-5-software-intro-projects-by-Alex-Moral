@@ -14,7 +14,7 @@ class State:
     latvel:float
 
 #resolution of the simulation
-time_step = 0.01
+time_step = 0.1
 
 #defines step function to move simulation through time
 def step (state:State) -> State:
@@ -68,6 +68,9 @@ def step (state:State) -> State:
     lateral_acceleration = lateral_force/mass
     new_latvel = state.latvel + (lateral_acceleration * time_step)
 
+    #Drag physics equations
+    #drag = 0.5 * cross_sectional_area * drag_coefficient * air_density * dragvel ** 2
+
     #updates variables of the simulaton state
     newState = State(
         xvel = new_vel,
@@ -92,36 +95,29 @@ x0 = State(
 def animate (i):
     global x0
     x0 = step(x0)
-    ax.clear()
-    ax.scatter([x0.xpos],[x0.ypos], s = 200, c = 'pink', marker = 's')
-    ax.set_xlim(0,300)
-    ax.set_ylim(0,10)
-
-    ax1.clear()
-    ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
-    #ax1.plot(x0.time,x0.latvel)
-    ax1.set_xlim(0,20)
-    ax1.set_ylim(0,50)
+    throttle.set_offsets([[x0.xpos, x0.ypos]])
+    latforce.set_offsets([x0.time, x0.latvel])
 
     return ax, ax1
 
 
 #draws the fixed simulation graph
-fig = plt.figure(figsize=(3,3), dpi=150)
-ax = fig.add_subplot(111)
+fig = plt.figure(figsize=(3,3), dpi=80)
+ax = fig.add_subplot(121)
 ax.grid()
-ax.set_xlim(-2, 2)
-ax.set_ylim(-2, 2)
+ax.set_xlim(0,300)
+ax.set_ylim(0,10)
+throttle = ax.scatter([x0.xpos],[x0.ypos], s = 200, c = 'pink', marker = 's')
+
 
 #making traction graph
-fig1 = plt.figure(figsize=(3,3),dpi=150)
-ax1 = fig1.add_subplot(111)
+ax1 = fig.add_subplot(122)
 ax1.grid()
-ax1.set_xlim(-2, 2)
-ax1.set_ylim(-2, 2)
+ax1.set_xlim(0,20)
+ax1.set_ylim(0,50)
+latforce = ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
 
 # these lines are so the animation doesnt zoom in or out
 plt.pause(3)
-ani = animation.FuncAnimation(fig, animate, interval=0)
-ani1 = animation.FuncAnimation(fig1, animate, interval=0)
+ani = animation.FuncAnimation(fig, animate, interval=50, frames = 1000)
 plt.show()
