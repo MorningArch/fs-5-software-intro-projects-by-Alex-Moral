@@ -171,7 +171,6 @@ def animate (i):
     #    brake_velocity.set_offsets([x0.time,x0.brakevel])
         ax4.plot(x0.time,x0.brakevel, 'x', markeredgewidth=2)
 
-#Not sure what below return still does anymore?  Artifacts from previous versions
     return ax, ax1, ax2, ax3, ax4
 
 
