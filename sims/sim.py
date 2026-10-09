@@ -156,12 +156,16 @@ def animate (i):
     global x0
     x0 = step(x0)
     throttle.set_offsets([[x0.xpos, x0.ypos]])
-    latforce.set_offsets([x0.time, x0.latvel])
+    #latforce.set_offsets([x0.time, x0.latvel])
+    ax1.plot(x0.time,x0.latvel, 'x', markeredgewidth=2)
     if (x0.dragvel >= 0.1):
-        vel_with_drag.set_offsets([x0.time,x0.dragvel])
-    motor_velocity.set_offsets([x0.time,x0.motvel])
+    #    vel_with_drag.set_offsets([x0.time,x0.dragvel])
+        ax2.plot(x0.time,x0.dragvel, 'x', markeredgewidth=2)
+    #motor_velocity.set_offsets([x0.time,x0.motvel])
+    ax3.plot(x0.time, x0.motvel, 'x', markeredgewidth=2)
     if (x0.brakevel >= 0):
-        brake_velocity.set_offsets([x0.time,x0.brakevel])
+    #    brake_velocity.set_offsets([x0.time,x0.brakevel])
+        ax4.plot(x0.time,x0.brakevel, 'x', markeredgewidth=2)
 
 #Not sure what below return still does anymore?  Artifacts from previous versions
     return ax, ax1, ax2, ax3, ax4
@@ -181,30 +185,34 @@ ax1 = fig.add_subplot(152)
 ax1.grid()
 ax1.set_xlim(0,20)
 ax1.set_ylim(0,50)
-latforce = ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
+#latforce = ax1.scatter([x0.time],[x0.latvel], s = 200, c = 'red', marker = 'D')
+ax1.plot(x0.time,x0.latvel, 'x', markeredgewidth=2)
 
 #making drag graph.  Note: still need to end simulation when dragvel = 0.1
 ax2 = fig.add_subplot(153)
 ax2.grid()
 ax2.set_xlim(0,50)
 ax2.set_ylim(0,50)
-vel_with_drag = ax2.scatter([x0.time],[x0.dragvel], s = 200, c = 'blue', marker = 'o')
+#vel_with_drag = ax2.scatter([x0.time],[x0.dragvel], s = 200, c = 'blue', marker = 'o')
+ax2.plot(x0.time,x0.dragvel, 'x', markeredgewidth=2)
 
 #making motor velocity graph.
 ax3 = fig.add_subplot(154)
 ax3.grid()
 ax3.set_xlim(0,50)
 ax3.set_ylim(0,50)
-motor_velocity = ax3.scatter([x0.time],[x0.motvel], s = 200, c = 'green', marker = 'o')
+#motor_velocity = ax3.scatter([x0.time],[x0.motvel], s = 200, c = 'green', marker = 'o')
+ax3.plot(x0.time, x0.motvel, 'x', markeredgewidth=2)
 
 #making brake velocity graph
 ax4 = fig.add_subplot(155)
 ax4.grid()
 ax4.set_xlim(0,50)
 ax4.set_ylim(0,50)
-brake_velocity = ax4.scatter([x0.time],[x0.brakevel], s = 200, c = 'green', marker = 's')
+#brake_velocity = ax4.scatter([x0.time],[x0.brakevel], s = 200, c = 'green', marker = 's')
+ax4.plot(x0.time,x0.brakevel, 'x', markeredgewidth=2)
 
 # these lines are so the animation doesnt zoom in or out
-plt.pause(3)
-ani = animation.FuncAnimation(fig, animate, interval=50, frames = 1000)
+plt.pause(10)
+ani = animation.FuncAnimation(fig, animate, interval=50, frames = 10000)
 plt.show()
