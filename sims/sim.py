@@ -157,9 +157,11 @@ def animate (i):
     x0 = step(x0)
     throttle.set_offsets([[x0.xpos, x0.ypos]])
     latforce.set_offsets([x0.time, x0.latvel])
-    vel_with_drag.set_offsets([x0.time,x0.dragvel])
+    if (x0.dragvel >= 0.1):
+        vel_with_drag.set_offsets([x0.time,x0.dragvel])
     motor_velocity.set_offsets([x0.time,x0.motvel])
-    brake_velocity.set_offsets([x0.time,x0.brakevel])
+    if (x0.brakevel >= 0):
+        brake_velocity.set_offsets([x0.time,x0.brakevel])
 
 #Not sure what below return still does anymore?  Artifacts from previous versions
     return ax, ax1, ax2, ax3, ax4
